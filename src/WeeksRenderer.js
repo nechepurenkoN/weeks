@@ -2,7 +2,7 @@
 import { countryToSexToAge } from "./data"
 
 function calcWeeks(country, sex) {
-    return countryToSexToAge[country][sex]
+    return parseFloat(countryToSexToAge[country][sex].replaceAll(',', '.'))
 }
 
 export default function WeeksRenderer({ countryState, sexState }) {
