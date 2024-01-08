@@ -11,7 +11,9 @@ export default function CountrySelector({ setCountryState }) {
                 options={choice.map(country => { return { label: country, value: country } })}
                 formatOptionLabel={country => (
                     <div className='country-option'>
-                        <img src={countryToSexToAge[country.value].flag} style={{ display: "inline", marginRight: "5px" }} />
+                        <img src={countryToSexToAge[country.value].flag}
+                            alt=''
+                            style={{ display: "inline", marginRight: "5px" }} />
                         <span>{country.label}</span>
                     </div>
                 )}
