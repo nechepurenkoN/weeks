@@ -28,10 +28,10 @@ function drawCircle(ctx, x, y, radius, fill, stroke, strokeWidth) {
 
 export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
     const canvasRef = useRef(null)
-    const [weeksLived, weeksTotal] = calcWeeks(countryState, sexState, dateBorn)
 
     useEffect(() => {
-        if (!countryState || !sexState || !dateBorn)
+        let [weeksLived, weeksTotal] = calcWeeks(countryState, sexState, dateBorn)
+        if (!weeksLived || !weeksTotal)
             return
         const canvas = canvasRef.current
         const context = canvas.getContext('2d')
@@ -39,17 +39,40 @@ export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
         const radius = 3
         const perRow = (canvas.width - space) / (radius * space)
         // Clear the canvas
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        let wantHeight = (weeksTotal / perRow + 1) * space * 3
+        canvas.style.height = (Math.max(300, wantHeight)) + 'px'
+        context.clearRect(0, 0, canvas.style.width, canvas.style.height);
 
-        for (let i = 0; i < perRow; i++) {
-            drawCircle(context, i * radius * space + 2 * space, 5, radius, "white", "black", 0.2)
+        let row = 0
+        let currentInRow = 0
+        for (let i = 0; i < weeksTotal; i++) {
+            if (currentInRow === perRow) {
+                row++
+                currentInRow = 0
+            } else {
+                currentInRow++
+            }
+
+            let color = undefined
+            if (weeksLived > 0) {
+                color = 'black'
+                weeksLived--
+            } else {
+                color = 'white'
+            }
+            drawCircle(
+                context,
+                (i % perRow) * radius * space + 2 * space,
+                5 + 3 * space * row,
+                radius, color, "black", 1
+            )
         }
     }, [countryState, sexState, dateBorn])
 
     return (
         <div>
-            <span>{weeksLived} {weeksTotal}</span>
-            <canvas ref={canvasRef} id="canvas" className={"w-full h-64 border border-gray-300"}></canvas>
+            {/* <span>{weeksLived} {weeksTotal}</span> */}
+            <canvas ref={canvasRef} id="canvas" className={"w-full border border-gray-300"}></canvas>
         </div>
     )
 }
