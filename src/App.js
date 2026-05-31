@@ -57,7 +57,7 @@ function App() {
             <SuggestionList weeksLived={weeksLived} weeksTotal={weeksTotal} sex={sex} />
           </div>
         </div>
-        <div style={{ padding: '32px' }}>
+        <div style={{ padding: '32px', height: '100%', boxSizing: 'border-box' }}>
           <WeeksRenderer weeks={weeks} dateBorn={dateBorn} />
         </div>
       </div>
