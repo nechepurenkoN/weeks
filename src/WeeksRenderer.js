@@ -11,45 +11,46 @@ function formatDate(date) {
 }
 
 
-function useCellSize(ref) {
-    const [cellSize, setCellSize] = useState(10)
+const OVERHEAD = 65  // counter (21px line + 20px marginBottom) + axis header (16px + 4px) + 4px bottom gap
+const V_PADDING = 64 // правая панель: 32px сверху + 32px снизу
+// ширина при cellSize=10, плюс запас на метку «Годы» (~14px) и gap (6px)
+const MIN_CONTAINER_WIDTH = LABEL_WIDTH + WEEKS_PER_ROW * (10 + CELL_MARGIN * 2) + 28
+
+function computeCellSize(weeksTotal) {
+    if (!weeksTotal) return 10
+    const h = window.innerHeight - V_PADDING
+    const totalYears = Math.ceil(weeksTotal / WEEKS_PER_ROW)
+    const separators = Math.floor((totalYears - 1) / 10) * 14
+    const availH = h - OVERHEAD - separators
+    return Math.max(2, Math.min(10, Math.floor(availH / totalYears) - CELL_MARGIN * 2))
+}
+
+function useCellSize(weeksTotal) {
+    const [cellSize, setCellSize] = useState(() => computeCellSize(weeksTotal))
+    const prevWeeksTotal = useRef(weeksTotal)
+
+    // Синхронное обновление при смене weeksTotal — React перерисует сразу без
+    // промежуточного кадра с неверным размером
+    if (prevWeeksTotal.current !== weeksTotal) {
+        prevWeeksTotal.current = weeksTotal
+        setCellSize(computeCellSize(weeksTotal))
+    }
+
     useEffect(() => {
-        const el = ref.current
-        if (!el) return
-        const observer = new ResizeObserver(entries => {
-            const w = entries[0].contentRect.width
-            const size = Math.max(4, Math.min(10, Math.floor((w - LABEL_WIDTH) / WEEKS_PER_ROW) - CELL_MARGIN * 2))
-            setCellSize(size)
-        })
-        observer.observe(el)
-        return () => observer.disconnect()
-    }, [ref])
+        function handleResize() { setCellSize(computeCellSize(weeksTotal)) }
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [weeksTotal])
+
     return cellSize
 }
 
 export default function WeeksRenderer({ weeks, dateBorn }) {
     const containerRef = useRef(null)
-    const innerRef = useRef(null)
-    const cellSize = useCellSize(innerRef)
+    const cellSize = useCellSize(weeks?.[1])
     const [tooltip, setTooltip] = useState(null)
 
-    if (!weeks) {
-        return (
-            <div style={{
-                marginTop: 32,
-                border: '1px dashed #d8d8d8',
-                padding: '52px 32px',
-                textAlign: 'center',
-                color: '#c0c0c0',
-                fontSize: 13,
-                letterSpacing: '0.03em',
-            }}>
-                Выберите страну и пол, чтобы увидеть сетку недель
-            </div>
-        )
-    }
-
-    const [weeksLived, weeksTotal] = weeks
+    const [weeksLived, weeksTotal] = weeks ?? [-1, 0]
     const weeksLeft = Math.max(0, weeksTotal - Math.max(0, weeksLived))
     const totalYearsCount = Math.ceil(weeksTotal / WEEKS_PER_ROW)
     const slot = cellSize + CELL_MARGIN * 2
@@ -74,76 +75,91 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
     }
 
     return (
-        <div ref={containerRef} style={{ marginTop: 32, position: 'relative' }}>
-            <Counter weeksLived={weeksLived} weeksTotal={weeksTotal} weeksLeft={weeksLeft} />
-            <div style={{ display: 'flex', gap: 6 }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                writingMode: 'vertical-rl',
-                transform: 'rotate(180deg)',
-                fontSize: 9,
-                color: '#aaa',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                userSelect: 'none',
-                paddingTop: 20,
-            }}>
-                Годы
-            </div>
-            <div ref={innerRef} style={{ flex: 1, minWidth: 0 }}>
-            <AxisHeader slot={slot} />
-            {Array.from({ length: totalYearsCount }, (_, year) => (
-                <div
-                    key={year}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        lineHeight: 1,
-                        marginTop: year > 0 && year % 10 === 0 ? 7 : 0,
-                        borderTop: year > 0 && year % 10 === 0 ? '1px solid #ebebeb' : 'none',
-                        paddingTop: year > 0 && year % 10 === 0 ? 6 : 0,
-                    }}
-                >
-                    <div style={{
-                        width: LABEL_WIDTH,
-                        fontSize: 9,
-                        textAlign: 'right',
-                        paddingRight: 5,
-                        color: '#aaa',
-                        flexShrink: 0,
-                        letterSpacing: '0.02em',
-                    }}>
-                        {year % 5 === 0 ? year : ''}
-                    </div>
-                    {Array.from({ length: WEEKS_PER_ROW }, (_, week) => {
-                        const index = year * WEEKS_PER_ROW + week
-                        if (index >= weeksTotal) return null
-                        const past = weeksLived >= 0 && index < weeksLived
-                        const current = weeksLived >= 0 && index === weeksLived
-                        return (
-                            <div
-                                key={week}
-                                onMouseEnter={e => handleMouseEnter(e, index)}
-                                onMouseLeave={() => setTooltip(null)}
-                                style={{
-                                    width: cellSize,
-                                    height: cellSize,
-                                    margin: CELL_MARGIN,
-                                    border: `1px solid ${past ? '#999' : current ? '#1a7a1a' : '#ccc'}`,
-                                    backgroundColor: past ? '#aaa' : current ? '#2db52d' : '#fff',
-                                    flexShrink: 0,
-                                    boxSizing: 'border-box',
-                                    cursor: 'default',
-                                }}
-                            />
-                        )
-                    })}
+        <div ref={containerRef} style={{ position: 'relative', minWidth: MIN_CONTAINER_WIDTH }}>
+            {!weeks ? (
+                <div style={{
+                    border: '1px dashed #d8d8d8',
+                    padding: '52px 32px',
+                    textAlign: 'center',
+                    color: '#c0c0c0',
+                    fontSize: 13,
+                    letterSpacing: '0.03em',
+                }}>
+                    Выберите страну и пол, чтобы увидеть сетку недель
                 </div>
-            ))}
-            </div>
-            </div>
+            ) : (
+                <>
+                    <Counter weeksLived={weeksLived} weeksTotal={weeksTotal} weeksLeft={weeksLeft} />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            writingMode: 'vertical-rl',
+                            transform: 'rotate(180deg)',
+                            fontSize: 9,
+                            color: '#aaa',
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            userSelect: 'none',
+                            paddingTop: 20,
+                        }}>
+                            Годы
+                        </div>
+                        <div style={{ paddingBottom: 4 }}>
+                            <AxisHeader slot={slot} />
+                            {Array.from({ length: totalYearsCount }, (_, year) => (
+                                <div
+                                    key={year}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        lineHeight: 1,
+                                        marginTop: year > 0 && year % 10 === 0 ? 7 : 0,
+                                        borderTop: year > 0 && year % 10 === 0 ? '1px solid #ebebeb' : 'none',
+                                        paddingTop: year > 0 && year % 10 === 0 ? 6 : 0,
+                                    }}
+                                >
+                                    <div style={{
+                                        width: LABEL_WIDTH,
+                                        fontSize: 9,
+                                        textAlign: 'right',
+                                        paddingRight: 5,
+                                        color: '#aaa',
+                                        flexShrink: 0,
+                                        letterSpacing: '0.02em',
+                                    }}>
+                                        {year % 5 === 0 ? year : ''}
+                                    </div>
+                                    {Array.from({ length: WEEKS_PER_ROW }, (_, week) => {
+                                        const index = year * WEEKS_PER_ROW + week
+                                        if (index >= weeksTotal) return null
+                                        const past = weeksLived >= 0 && index < weeksLived
+                                        const current = weeksLived >= 0 && index === weeksLived
+                                        return (
+                                            <div
+                                                key={week}
+                                                onMouseEnter={e => handleMouseEnter(e, index)}
+                                                onMouseLeave={() => setTooltip(null)}
+                                                style={{
+                                                    width: cellSize,
+                                                    height: cellSize,
+                                                    margin: CELL_MARGIN,
+                                                    border: `1px solid ${past ? '#999' : current ? '#1a7a1a' : '#ccc'}`,
+                                                    backgroundColor: past ? '#aaa' : current ? '#2db52d' : '#fff',
+                                                    flexShrink: 0,
+                                                    boxSizing: 'border-box',
+                                                    cursor: 'default',
+                                                }}
+                                            />
+                                        )
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
             {tooltip && (
                 <div style={{
                     position: 'absolute',

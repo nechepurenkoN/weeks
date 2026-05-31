@@ -1,8 +1,8 @@
 import { labelStyle } from './styles'
 
 const options = [
-    { label: 'Мужчина', value: 'men' },
-    { label: 'Женщина', value: 'women' },
+    { label: '👨 Мужчина', value: 'men' },
+    { label: '👩 Женщина', value: 'women' },
 ]
 
 export default function SexSelector({ value, onChange }) {
@@ -15,6 +15,7 @@ export default function SexSelector({ value, onChange }) {
                         key={v}
                         onClick={() => onChange(v)}
                         style={{
+                            flex: 1,
                             padding: '6px 20px',
                             border: '1px solid',
                             borderColor: value === v ? '#000' : '#ccc',

@@ -65,7 +65,7 @@ export default function CountrySelector({ onChange }) {
     }
 
     return (
-        <div style={{ marginBottom: 24, width: 320 }} onKeyDownCapture={handleKeyDown}>
+        <div style={{ marginBottom: 24, width: '100%' }} onKeyDownCapture={handleKeyDown}>
             <label style={labelStyle}>Страна</label>
             <Select
                 options={options}

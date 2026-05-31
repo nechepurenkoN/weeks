@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
 import CountrySelector from './CountrySelector';
 import SexSelector from './SexSelector';
@@ -11,39 +11,27 @@ function App() {
   const [country, setCountry] = useState()
   const [sex, setSex] = useState()
   const [dateBorn, setDateBorn] = useState()
-  const [selectorsHeight, setSelectorsHeight] = useState(null)
-  const selectorsRef = useRef(null)
-
-  useEffect(() => {
-    const el = selectorsRef.current
-    if (!el) return
-    const observer = new ResizeObserver(entries => {
-      setSelectorsHeight(entries[0].contentRect.height)
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
 
   const weeks = calcWeeks(country, sex, dateBorn)
   const [weeksLived, weeksTotal] = weeks ?? [-1, 0]
 
   return (
-    <div style={{ width: 'fit-content', margin: '0 auto', padding: '40px 32px' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>Сколько тебе недель осталось?</h2>
-      <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', width: '100%' }}>
-        <div ref={selectorsRef} style={{ flexShrink: 0 }}>
-          <CountrySelector onChange={setCountry} />
-          <SexSelector value={sex} onChange={setSex} />
-          <DateBornSelector onChange={setDateBorn} />
-        </div>
-        <div style={{ width: 320, flexShrink: 0, paddingTop: 4, overflow: 'hidden', maxHeight: selectorsHeight ?? 'none' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', width: 'fit-content', margin: '0 auto' }}>
+      <div style={{ width: 340, flexShrink: 0, padding: '32px 24px', overflowY: 'auto' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>Сколько тебе недель осталось?</h2>
+        <CountrySelector onChange={setCountry} />
+        <SexSelector value={sex} onChange={setSex} />
+        <DateBornSelector onChange={setDateBorn} />
+        <div style={{ marginTop: 24 }}>
           <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#555' }}>
             Что можно успеть
           </h3>
           <SuggestionList weeksLived={weeksLived} weeksTotal={weeksTotal} sex={sex} />
         </div>
       </div>
-      <WeeksRenderer weeks={weeks} dateBorn={dateBorn} />
+      <div style={{ padding: '32px' }}>
+        <WeeksRenderer weeks={weeks} dateBorn={dateBorn} />
+      </div>
     </div>
   );
 }

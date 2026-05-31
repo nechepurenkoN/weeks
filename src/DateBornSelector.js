@@ -50,7 +50,7 @@ export default function DateBornSelector({ onChange }) {
     const borderColor = invalid ? '#c00' : focused ? '#000' : '#ccc'
 
     return (
-        <div style={{ marginBottom: 24, width: 320 }}>
+        <div style={{ marginBottom: 24 }}>
             <label style={labelStyle}>Дата рождения</label>
             <input
                 type="text"
