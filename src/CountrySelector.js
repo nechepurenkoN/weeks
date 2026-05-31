@@ -3,6 +3,7 @@ import { countryToSexToAge } from './data'
 import { getFlag } from './emojiFlag'
 import Select from 'react-select'
 import { labelStyle } from './styles'
+import { useLocale } from './i18n/index'
 
 const options = Object.keys(countryToSexToAge).sort().map(country => ({
     value: country,
@@ -45,6 +46,7 @@ const selectStyles = {
 }
 
 export default function CountrySelector({ onChange }) {
+    const t = useLocale()
     const [selected, setSelected] = useState(null)
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -66,12 +68,12 @@ export default function CountrySelector({ onChange }) {
 
     return (
         <div style={{ marginBottom: 24, width: '100%' }} onKeyDownCapture={handleKeyDown}>
-            <label style={labelStyle}>Страна</label>
+            <label style={labelStyle}>{t.countryLabel}</label>
             <Select
                 options={options}
                 value={selected}
                 styles={selectStyles}
-                placeholder="Выберите страну"
+                placeholder={t.countryPlaceholder}
                 formatOptionLabel={opt => (
                     <span>
                         <span style={{ marginRight: 8, fontSize: 16 }}>{opt.flag}</span>
@@ -81,7 +83,7 @@ export default function CountrySelector({ onChange }) {
                 onChange={handleChange}
                 onMenuOpen={() => setMenuOpen(true)}
                 onMenuClose={() => setMenuOpen(false)}
-                noOptionsMessage={() => 'Не найдено'}
+                noOptionsMessage={() => t.countryNotFound}
             />
         </div>
     )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { labelStyle } from './styles'
+import { useLocale } from './i18n/index'
 
 function formatDigits(digits) {
     if (digits.length <= 2) return digits
@@ -19,6 +20,7 @@ function parseDate(digits) {
 }
 
 export default function DateBornSelector({ onChange }) {
+    const t = useLocale()
     const [display, setDisplay] = useState('')
     const [focused, setFocused] = useState(false)
     const [invalid, setInvalid] = useState(false)
@@ -29,7 +31,6 @@ export default function DateBornSelector({ onChange }) {
 
         let digits = newRaw.replace(/\D/g, '').slice(0, 8)
 
-        // Если длина стала меньше и цифры не изменились — удалён разделитель
         if (newRaw.length < prevDisplay.length && digits === prevDisplay.replace(/\D/g, '')) {
             digits = digits.slice(0, -1)
         }
@@ -51,7 +52,7 @@ export default function DateBornSelector({ onChange }) {
 
     return (
         <div style={{ marginBottom: 24 }}>
-            <label style={labelStyle}>Дата рождения</label>
+            <label style={labelStyle}>{t.dateBornLabel}</label>
             <input
                 type="text"
                 inputMode="numeric"
@@ -59,7 +60,7 @@ export default function DateBornSelector({ onChange }) {
                 onChange={handleChange}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
-                placeholder="ДД.ММ.ГГГГ"
+                placeholder={t.datePlaceholder}
                 style={{
                     display: 'block',
                     width: '100%',
@@ -77,10 +78,9 @@ export default function DateBornSelector({ onChange }) {
             />
             {invalid && (
                 <span style={{ fontSize: 11, color: '#c00', marginTop: 4, display: 'block' }}>
-                    Неверная дата
+                    {t.dateInvalid}
                 </span>
             )}
         </div>
     )
 }
-

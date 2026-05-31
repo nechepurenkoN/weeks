@@ -1,14 +1,16 @@
 import { labelStyle } from './styles'
-
-const options = [
-    { label: '👨 Мужчина', value: 'men' },
-    { label: '👩 Женщина', value: 'women' },
-]
+import { useLocale } from './i18n/index'
 
 export default function SexSelector({ value, onChange }) {
+    const t = useLocale()
+    const options = [
+        { label: t.male, value: 'men' },
+        { label: t.female, value: 'women' },
+    ]
+
     return (
         <div style={{ marginBottom: 24 }}>
-            <label style={labelStyle}>Пол</label>
+            <label style={labelStyle}>{t.sexLabel}</label>
             <div style={{ display: 'flex', gap: 8 }}>
                 {options.map(({ label, value: v }) => (
                     <button

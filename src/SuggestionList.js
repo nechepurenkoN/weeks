@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { suggestions } from './suggestions'
+import { useLocale } from './i18n/index'
 
 function buildContext(weeksLived, weeksTotal, sex) {
     if (weeksLived < 0 || !sex) return null
@@ -20,9 +21,9 @@ function shuffle(arr) {
 }
 
 export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
+    const t = useLocale()
     const ctx = buildContext(weeksLived, weeksTotal, sex)
 
-    // Re-pick при смене возраста (с шагом год) или пола
     const ageBucket = ctx ? ctx.age : -1
     const picked = useMemo(() => {
         if (!ctx) return []
@@ -34,7 +35,7 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
     if (!ctx) {
         return (
             <p style={{ fontSize: 12, color: '#bbb', lineHeight: 1.6, marginTop: 8 }}>
-                Введите дату рождения, чтобы увидеть персональные рекомендации
+                {t.noSuggestions}
             </p>
         )
     }
@@ -43,13 +44,15 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
         <div style={{ fontSize: 13, color: '#444', overflow: 'hidden' }}>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {picked.map(item => {
-                    const text = typeof item.text === 'function' ? item.text(ctx) : item.text
+                    const entry = t.suggestions[item.id]
+                    const text = typeof entry.text === 'function' ? entry.text(ctx) : entry.text
+                    const linkLabel = entry.linkLabel
                     return (
                         <li key={item.id} style={{ marginBottom: 16 }}>
-                            <div style={categoryStyle}>{item.category}</div>
+                            <div style={categoryStyle}>{t.categories[item.categoryKey]}</div>
                             <div style={{ lineHeight: 1.45 }}>
                                 {text}
-                                {item.link && (
+                                {item.link && linkLabel && (
                                     <>
                                         {' '}
                                         <a
@@ -58,7 +61,7 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
                                             rel="noreferrer"
                                             style={linkStyle}
                                         >
-                                            {item.link.label} ↗
+                                            {linkLabel} ↗
                                         </a>
                                     </>
                                 )}

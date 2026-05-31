@@ -1,13 +1,13 @@
 import { useRef, useState, useEffect } from 'react'
 import { WEEK_MS } from './calcWeeks'
+import { useLocale } from './i18n/index'
 
 const WEEKS_PER_ROW = 52
 const CELL_MARGIN = 1
 const LABEL_WIDTH = 28
-const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек']
 
-function formatDate(date) {
-    return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`
+function formatDate(date, months) {
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
 }
 
 
@@ -29,8 +29,6 @@ function useCellSize(weeksTotal) {
     const [cellSize, setCellSize] = useState(() => computeCellSize(weeksTotal))
     const prevWeeksTotal = useRef(weeksTotal)
 
-    // Синхронное обновление при смене weeksTotal — React перерисует сразу без
-    // промежуточного кадра с неверным размером
     if (prevWeeksTotal.current !== weeksTotal) {
         prevWeeksTotal.current = weeksTotal
         setCellSize(computeCellSize(weeksTotal))
@@ -46,6 +44,7 @@ function useCellSize(weeksTotal) {
 }
 
 export default function WeeksRenderer({ weeks, dateBorn }) {
+    const t = useLocale()
     const containerRef = useRef(null)
     const cellSize = useCellSize(weeks?.[1])
     const [tooltip, setTooltip] = useState(null)
@@ -65,11 +64,11 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
         if (dateBorn) {
             const start = new Date(dateBorn.getTime() + index * WEEK_MS)
             const end = new Date(start.getTime() + WEEK_MS - 24 * 60 * 60 * 1000)
-            text = `${formatDate(start)} — ${formatDate(end)}`
+            text = `${formatDate(start, t.months)} — ${formatDate(end, t.months)}`
         } else {
             const yr = Math.floor(index / WEEKS_PER_ROW) + 1
             const wk = (index % WEEKS_PER_ROW) + 1
-            text = `Год ${yr}, неделя ${wk}`
+            text = t.tooltipYearWeek(yr, wk)
         }
         setTooltip({ x, y, text, rightHalf })
     }
@@ -85,7 +84,7 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                     fontSize: 13,
                     letterSpacing: '0.03em',
                 }}>
-                    Выберите страну и пол, чтобы увидеть сетку недель
+                    {t.noGrid}
                 </div>
             ) : (
                 <>
@@ -104,7 +103,7 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                             userSelect: 'none',
                             paddingTop: 20,
                         }}>
-                            Годы
+                            {t.yearsAxis}
                         </div>
                         <div style={{ paddingBottom: 4 }}>
                             <AxisHeader slot={slot} />
@@ -183,23 +182,29 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
 }
 
 function Counter({ weeksLived, weeksTotal, weeksLeft }) {
+    const t = useLocale()
+    const pct = Math.min(100, (weeksLived / weeksTotal * 100).toFixed(1))
+    const yearsLeft = (weeksLeft / 52).toFixed(1)
+    const yearsTotal = (weeksTotal / 52).toFixed(0)
+
     return (
         <div style={{ marginBottom: 20, fontSize: 14, color: '#555', fontFamily: 'Helvetica, Arial, sans-serif' }}>
             {weeksLived >= 0 ? (
                 <>
-                    Прожито{' '}
-                    <strong style={{ color: '#222' }}>{weeksLived.toLocaleString('ru')}</strong>{' '}
-                    недель{' '}
-                    <span style={{ color: '#aaa' }}>({Math.min(100, (weeksLived / weeksTotal * 100).toFixed(1))}%)</span>
-                    {' '}· Осталось{' '}
-                    <strong style={{ color: '#222' }}>{weeksLeft.toLocaleString('ru')}</strong>{' '}
-                    <span style={{ color: '#aaa' }}>({(weeksLeft / 52).toFixed(1)} лет)</span>
+                    {t.counterLived}{' '}
+                    <strong style={{ color: '#222' }}>{weeksLived.toLocaleString(t.localeCode)}</strong>{' '}
+                    {t.counterWeeks}{' '}
+                    <span style={{ color: '#aaa' }}>({pct}%)</span>
+                    {' '}·{' '}{t.counterLeft}{' '}
+                    <strong style={{ color: '#222' }}>{weeksLeft.toLocaleString(t.localeCode)}</strong>{' '}
+                    <span style={{ color: '#aaa' }}>{t.counterYearsLeft(yearsLeft)}</span>
                 </>
             ) : (
                 <>
-                    Ожидаемая продолжительность жизни:{' '}
-                    <strong style={{ color: '#222' }}>{weeksTotal.toLocaleString('ru')}</strong>{' '}
-                    недель <span style={{ color: '#aaa' }}>({(weeksTotal / 52).toFixed(0)} лет)</span>
+                    {t.lifeExpLabel}{' '}
+                    <strong style={{ color: '#222' }}>{weeksTotal.toLocaleString(t.localeCode)}</strong>{' '}
+                    {t.counterWeeks}{' '}
+                    <span style={{ color: '#aaa' }}>{t.lifeExpYears(yearsTotal)}</span>
                 </>
             )}
         </div>
@@ -207,6 +212,7 @@ function Counter({ weeksLived, weeksTotal, weeksLeft }) {
 }
 
 function AxisHeader({ slot }) {
+    const t = useLocale()
     const markers = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     return (
         <div style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 4 }}>
@@ -219,7 +225,7 @@ function AxisHeader({ slot }) {
                     whiteSpace: 'nowrap',
                     userSelect: 'none',
                 }}>
-                    Нед.
+                    {t.weeksAxis}
                 </span>
             </div>
             <div style={{ position: 'relative', width: WEEKS_PER_ROW * slot, height: 16 }}>
