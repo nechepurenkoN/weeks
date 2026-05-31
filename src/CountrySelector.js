@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { countryToSexToAge } from './data'
 import { getFlag } from './emojiFlag'
 import Select from 'react-select'
+import { labelStyle } from './styles'
 
 const options = Object.keys(countryToSexToAge).sort().map(country => ({
     value: country,
@@ -42,12 +44,32 @@ const selectStyles = {
     }),
 }
 
-export default function CountrySelector({ setCountryState }) {
+export default function CountrySelector({ onChange }) {
+    const [selected, setSelected] = useState(null)
+    const [menuOpen, setMenuOpen] = useState(false)
+
+    function handleChange(opt) {
+        setSelected(opt)
+        onChange(opt.value)
+    }
+
+    function handleKeyDown(e) {
+        if (menuOpen) return
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+        e.preventDefault()
+        const idx = selected ? options.findIndex(o => o.value === selected.value) : -1
+        const next = e.key === 'ArrowDown'
+            ? Math.min(idx + 1, options.length - 1)
+            : Math.max(idx - 1, 0)
+        handleChange(options[next])
+    }
+
     return (
-        <div style={{ marginBottom: 24, maxWidth: 320 }}>
+        <div style={{ marginBottom: 24, width: 320 }} onKeyDownCapture={handleKeyDown}>
             <label style={labelStyle}>Страна</label>
             <Select
                 options={options}
+                value={selected}
                 styles={selectStyles}
                 placeholder="Выберите страну"
                 formatOptionLabel={opt => (
@@ -56,18 +78,11 @@ export default function CountrySelector({ setCountryState }) {
                         {opt.label}
                     </span>
                 )}
-                onChange={opt => setCountryState(opt.value)}
+                onChange={handleChange}
+                onMenuOpen={() => setMenuOpen(true)}
+                onMenuClose={() => setMenuOpen(false)}
                 noOptionsMessage={() => 'Не найдено'}
             />
         </div>
     )
-}
-
-const labelStyle = {
-    display: 'block',
-    fontSize: 11,
-    letterSpacing: '0.09em',
-    textTransform: 'uppercase',
-    color: '#888',
-    marginBottom: 6,
 }

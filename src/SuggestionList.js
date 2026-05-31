@@ -19,7 +19,7 @@ function shuffle(arr) {
     return a
 }
 
-export default function SuggestionList({ weeksLived, weeksTotal, sex, maxHeight }) {
+export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
     const ctx = buildContext(weeksLived, weeksTotal, sex)
 
     // Re-pick при смене возраста (с шагом год) или пола
@@ -40,7 +40,7 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex, maxHeight 
     }
 
     return (
-        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden', maxHeight: maxHeight ?? 'none' }}>
+        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden' }}>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {picked.map(item => {
                     const text = typeof item.text === 'function' ? item.text(ctx) : item.text

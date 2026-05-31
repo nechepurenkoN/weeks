@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { labelStyle } from './styles'
 
 function formatDigits(digits) {
     if (digits.length <= 2) return digits
@@ -17,7 +18,7 @@ function parseDate(digits) {
     return date
 }
 
-export default function DateBornSelector({ setDateBorn }) {
+export default function DateBornSelector({ onChange }) {
     const [display, setDisplay] = useState('')
     const [focused, setFocused] = useState(false)
     const [invalid, setInvalid] = useState(false)
@@ -39,17 +40,17 @@ export default function DateBornSelector({ setDateBorn }) {
         if (digits.length === 8) {
             const date = parseDate(digits)
             setInvalid(!date)
-            setDateBorn(date)
+            onChange(date)
         } else {
             setInvalid(false)
-            setDateBorn(null)
+            onChange(null)
         }
     }
 
     const borderColor = invalid ? '#c00' : focused ? '#000' : '#ccc'
 
     return (
-        <div style={{ marginBottom: 24, maxWidth: 320 }}>
+        <div style={{ marginBottom: 24, width: 320 }}>
             <label style={labelStyle}>Дата рождения</label>
             <input
                 type="text"
@@ -83,11 +84,3 @@ export default function DateBornSelector({ setDateBorn }) {
     )
 }
 
-const labelStyle = {
-    display: 'block',
-    fontSize: 11,
-    letterSpacing: '0.09em',
-    textTransform: 'uppercase',
-    color: '#888',
-    marginBottom: 6,
-}

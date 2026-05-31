@@ -1,32 +1,25 @@
-import { useState } from 'react'
+import { labelStyle } from './styles'
 
 const options = [
     { label: 'Мужчина', value: 'men' },
     { label: 'Женщина', value: 'women' },
 ]
 
-export default function SexSelector({ setSexState }) {
-    const [selected, setSelected] = useState(null)
-
-    function pick(value) {
-        setSelected(value)
-        setSexState(value)
-    }
-
+export default function SexSelector({ value, onChange }) {
     return (
         <div style={{ marginBottom: 24 }}>
             <label style={labelStyle}>Пол</label>
-            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                {options.map(({ label, value }) => (
+            <div style={{ display: 'flex', gap: 8 }}>
+                {options.map(({ label, value: v }) => (
                     <button
-                        key={value}
-                        onClick={() => pick(value)}
+                        key={v}
+                        onClick={() => onChange(v)}
                         style={{
                             padding: '6px 20px',
                             border: '1px solid',
-                            borderColor: selected === value ? '#000' : '#ccc',
-                            background: selected === value ? '#000' : 'transparent',
-                            color: selected === value ? '#fff' : '#555',
+                            borderColor: value === v ? '#000' : '#ccc',
+                            background: value === v ? '#000' : 'transparent',
+                            color: value === v ? '#fff' : '#555',
                             cursor: 'pointer',
                             fontSize: 14,
                             letterSpacing: '0.02em',
@@ -40,12 +33,4 @@ export default function SexSelector({ setSexState }) {
             </div>
         </div>
     )
-}
-
-const labelStyle = {
-    display: 'block',
-    fontSize: 11,
-    letterSpacing: '0.09em',
-    textTransform: 'uppercase',
-    color: '#888',
 }

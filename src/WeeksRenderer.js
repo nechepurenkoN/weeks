@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { calcWeeks } from './calcWeeks'
+import { WEEK_MS } from './calcWeeks'
 
 const WEEKS_PER_ROW = 52
 const CELL_MARGIN = 1
@@ -27,12 +27,13 @@ function useCellSize(ref) {
     return cellSize
 }
 
-export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
+export default function WeeksRenderer({ weeks, dateBorn }) {
     const containerRef = useRef(null)
-    const cellSize = useCellSize(containerRef)
+    const innerRef = useRef(null)
+    const cellSize = useCellSize(innerRef)
     const [tooltip, setTooltip] = useState(null)
 
-    if (!countryState || !sexState) {
+    if (!weeks) {
         return (
             <div style={{
                 marginTop: 32,
@@ -48,10 +49,7 @@ export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
         )
     }
 
-    const result = calcWeeks(countryState, sexState, dateBorn)
-    if (!result) return null
-
-    const [weeksLived, weeksTotal] = result
+    const [weeksLived, weeksTotal] = weeks
     const weeksLeft = Math.max(0, weeksTotal - Math.max(0, weeksLived))
     const totalYearsCount = Math.ceil(weeksTotal / WEEKS_PER_ROW)
     const slot = cellSize + CELL_MARGIN * 2
@@ -64,8 +62,8 @@ export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
 
         let text
         if (dateBorn) {
-            const start = new Date(dateBorn.getTime() + index * 7 * 24 * 60 * 60 * 1000)
-            const end = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000)
+            const start = new Date(dateBorn.getTime() + index * WEEK_MS)
+            const end = new Date(start.getTime() + WEEK_MS - 24 * 60 * 60 * 1000)
             text = `${formatDate(start)} — ${formatDate(end)}`
         } else {
             const yr = Math.floor(index / WEEKS_PER_ROW) + 1
@@ -94,7 +92,7 @@ export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
             }}>
                 Годы
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div ref={innerRef} style={{ flex: 1, minWidth: 0 }}>
             <AxisHeader slot={slot} />
             {Array.from({ length: totalYearsCount }, (_, year) => (
                 <div
@@ -106,7 +104,6 @@ export default function WeeksRenderer({ countryState, sexState, dateBorn }) {
                         marginTop: year > 0 && year % 10 === 0 ? 7 : 0,
                         borderTop: year > 0 && year % 10 === 0 ? '1px solid #ebebeb' : 'none',
                         paddingTop: year > 0 && year % 10 === 0 ? 6 : 0,
-                        paddingRight: year > 0 && year % 10 === 0 ? LABEL_WIDTH : 0,
                     }}
                 >
                     <div style={{
