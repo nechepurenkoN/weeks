@@ -7,7 +7,7 @@ export function calcWeeks(country, sex, dateBorn) {
     const totalYears = parseFloat(countryToSexToAge[country][sex].replaceAll(',', '.'))
     const weeksTotal = Math.ceil(totalYears * 52)
     const weeksLived = dateBorn
-        ? Math.floor((Date.now() - dateBorn) / WEEK_MS)
+        ? Math.floor((Date.now() - dateBorn.getTime()) / WEEK_MS)
         : -1
     return [weeksLived, weeksTotal]
 }

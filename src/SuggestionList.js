@@ -41,7 +41,7 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
     }
 
     return (
-        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden', fontWeight: 400 }}>
+        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden' }}>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {picked.map(item => {
                     const entry = t.suggestions[item.id]

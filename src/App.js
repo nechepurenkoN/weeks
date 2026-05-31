@@ -27,7 +27,7 @@ function App() {
       <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', width: 'fit-content', margin: '0 auto' }}>
         <div style={{ width: 340, flexShrink: 0, padding: '32px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-            {['ru', 'en'].map(l => (
+            {Object.keys(locales).map(l => (
               <button
                 key={l}
                 onClick={() => setLang(l)}

@@ -7,10 +7,17 @@ const CELL_MARGIN = 1
 const LABEL_WIDTH = 28
 // AxisHeader высота (16) + marginBottom (4) + paddingBottom на обёртке (4)
 const AXIS_OVERHEAD = 24
-const MIN_CONTAINER_WIDTH = LABEL_WIDTH + WEEKS_PER_ROW * (10 + CELL_MARGIN * 2) + 28
+const YEARS_LABEL_AREA = 28  // ширина вертикального лейбла «Годы» + gap
+const MIN_CONTAINER_WIDTH = LABEL_WIDTH + WEEKS_PER_ROW * (10 + CELL_MARGIN * 2) + YEARS_LABEL_AREA
 
 function formatDate(date, months) {
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+}
+
+function cellStyle(past, current) {
+    if (past)    return { borderColor: '#999', backgroundColor: '#aaa' }
+    if (current) return { borderColor: '#1a7a1a', backgroundColor: '#2db52d' }
+    return               { borderColor: '#ccc', backgroundColor: '#fff' }
 }
 
 export default function WeeksRenderer({ weeks, dateBorn }) {
@@ -29,12 +36,11 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
     const computeSize = useCallback(() => {
         const el = gridAreaRef.current
         if (!el || !weeksTotal) return
-        const totalYears = Math.ceil(weeksTotal / WEEKS_PER_ROW)
-        const separators = Math.floor((totalYears - 1) / 10) * 14
+        const separators = Math.floor((totalYearsCount - 1) / 10) * 14
         const rowsH = el.clientHeight - AXIS_OVERHEAD - separators
-        const size = Math.max(2, Math.min(10, Math.floor(rowsH / totalYears) - CELL_MARGIN * 2))
+        const size = Math.max(2, Math.min(10, Math.floor(rowsH / totalYearsCount) - CELL_MARGIN * 2))
         setCellSize(size)
-    }, [weeksTotal])
+    }, [weeksTotal, totalYearsCount])
 
     // Синхронно до первого рендера, чтобы не было мигания
     useLayoutEffect(() => { computeSize() }, [computeSize])
@@ -139,6 +145,7 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                                             if (index >= weeksTotal) return null
                                             const past = weeksLived >= 0 && index < weeksLived
                                             const current = weeksLived >= 0 && index === weeksLived
+                                            const { borderColor, backgroundColor } = cellStyle(past, current)
                                             return (
                                                 <div
                                                     key={week}
@@ -148,8 +155,8 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                                                         width: cellSize,
                                                         height: cellSize,
                                                         margin: CELL_MARGIN,
-                                                        border: `1px solid ${past ? '#999' : current ? '#1a7a1a' : '#ccc'}`,
-                                                        backgroundColor: past ? '#aaa' : current ? '#2db52d' : '#fff',
+                                                        border: `1px solid ${borderColor}`,
+                                                        backgroundColor,
                                                         flexShrink: 0,
                                                         boxSizing: 'border-box',
                                                         cursor: 'default',

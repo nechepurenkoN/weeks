@@ -17,7 +17,7 @@ export const ru = {
     dateInvalid: 'Неверная дата',
 
     noSuggestions: 'Введите дату рождения, чтобы увидеть персональные рекомендации',
-    madeBy: 'Сделано с ❤️ by nechn and claude',
+    madeBy: 'Сделано с ❤️ nechn и claude',
     noGrid: 'Выберите страну и пол, чтобы увидеть сетку недель',
 
     counterLived: 'Прожито',
