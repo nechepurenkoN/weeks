@@ -34,14 +34,14 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
 
     if (!ctx) {
         return (
-            <p style={{ fontSize: 12, color: '#bbb', lineHeight: 1.6, marginTop: 8 }}>
+            <p style={{ fontSize: 13, color: '#bbb', lineHeight: 1.55, marginTop: 8 }}>
                 {t.noSuggestions}
             </p>
         )
     }
 
     return (
-        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden' }}>
+        <div style={{ fontSize: 13, color: '#444', overflow: 'hidden', fontWeight: 400 }}>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {picked.map(item => {
                     const entry = t.suggestions[item.id]
@@ -50,7 +50,7 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
                     return (
                         <li key={item.id} style={{ marginBottom: 16 }}>
                             <div style={categoryStyle}>{t.categories[item.categoryKey]}</div>
-                            <div style={{ lineHeight: 1.45 }}>
+                            <div style={{ lineHeight: 1.55 }}>
                                 {text}
                                 {item.link && linkLabel && (
                                     <>
@@ -75,7 +75,8 @@ export default function SuggestionList({ weeksLived, weeksTotal, sex }) {
 }
 
 const categoryStyle = {
-    fontSize: 9,
+    fontSize: 10,
+    fontWeight: 500,
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
     color: '#aaa',

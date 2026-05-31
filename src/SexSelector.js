@@ -24,8 +24,9 @@ export default function SexSelector({ value, onChange }) {
                             background: value === v ? '#000' : 'transparent',
                             color: value === v ? '#fff' : '#555',
                             cursor: 'pointer',
-                            fontSize: 14,
-                            letterSpacing: '0.02em',
+                            fontSize: 13,
+                            fontWeight: 500,
+                            letterSpacing: 0,
                             transition: 'all 0.15s',
                             borderRadius: 0,
                         }}

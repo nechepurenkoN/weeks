@@ -25,7 +25,7 @@ function App() {
   return (
     <LocaleContext.Provider value={locale}>
       <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', width: 'fit-content', margin: '0 auto' }}>
-        <div style={{ width: 340, flexShrink: 0, padding: '32px 24px', overflowY: 'auto' }}>
+        <div style={{ width: 340, flexShrink: 0, padding: '32px 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
             {['ru', 'en'].map(l => (
               <button
@@ -46,16 +46,19 @@ function App() {
               </button>
             ))}
           </div>
-          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>{locale.heading}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.2, marginBottom: 24 }}>{locale.heading}</h2>
           <CountrySelector onChange={setCountry} />
           <SexSelector value={sex} onChange={setSex} />
           <DateBornSelector onChange={setDateBorn} />
           <div style={{ marginTop: 24 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#555' }}>
+            <h3 style={{ fontSize: 11, fontWeight: 600, marginBottom: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#444' }}>
               {locale.whatToDo}
             </h3>
             <SuggestionList weeksLived={weeksLived} weeksTotal={weeksTotal} sex={sex} />
           </div>
+          <p style={{ marginTop: 'auto', paddingTop: 24, fontSize: 13, color: '#ccc' }}>
+            {locale.madeBy}
+          </p>
         </div>
         <div style={{ padding: '32px', height: '100%', boxSizing: 'border-box' }}>
           <WeeksRenderer weeks={weeks} dateBorn={dateBorn} />

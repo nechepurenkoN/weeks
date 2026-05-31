@@ -1,15 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { countryToSexToAge } from './data'
+import { countryIso } from './countryIso'
 import { getFlag } from './emojiFlag'
 import Select from 'react-select'
 import { labelStyle } from './styles'
 import { useLocale } from './i18n/index'
-
-const options = Object.keys(countryToSexToAge).sort().map(country => ({
-    value: country,
-    label: country,
-    flag: getFlag(country),
-}))
 
 const selectStyles = {
     control: (base, state) => ({
@@ -47,11 +42,24 @@ const selectStyles = {
 
 export default function CountrySelector({ onChange }) {
     const t = useLocale()
-    const [selected, setSelected] = useState(null)
+    const [selectedValue, setSelectedValue] = useState(null)
     const [menuOpen, setMenuOpen] = useState(false)
 
+    const options = useMemo(() => {
+        const dn = new Intl.DisplayNames([t.localeCode], { type: 'region' })
+        return Object.keys(countryToSexToAge)
+            .map(ruName => {
+                const iso = countryIso[ruName]
+                const label = iso ? (dn.of(iso) ?? ruName) : ruName
+                return { value: ruName, label, flag: getFlag(ruName) }
+            })
+            .sort((a, b) => a.label.localeCompare(b.label, t.localeCode))
+    }, [t.localeCode])
+
+    const selected = selectedValue ? options.find(o => o.value === selectedValue) ?? null : null
+
     function handleChange(opt) {
-        setSelected(opt)
+        setSelectedValue(opt.value)
         onChange(opt.value)
     }
 
@@ -59,7 +67,7 @@ export default function CountrySelector({ onChange }) {
         if (menuOpen) return
         if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
         e.preventDefault()
-        const idx = selected ? options.findIndex(o => o.value === selected.value) : -1
+        const idx = selectedValue ? options.findIndex(o => o.value === selectedValue) : -1
         const next = e.key === 'ArrowDown'
             ? Math.min(idx + 1, options.length - 1)
             : Math.max(idx - 1, 0)

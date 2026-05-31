@@ -98,9 +98,10 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                             justifyContent: 'center',
                             writingMode: 'vertical-rl',
                             transform: 'rotate(180deg)',
-                            fontSize: 9,
+                            fontSize: 10,
+                            fontWeight: 500,
                             color: '#aaa',
-                            letterSpacing: '0.12em',
+                            letterSpacing: '0.08em',
                             textTransform: 'uppercase',
                             userSelect: 'none',
                             paddingTop: 20,
@@ -125,12 +126,11 @@ export default function WeeksRenderer({ weeks, dateBorn }) {
                                             width: LABEL_WIDTH,
                                             lineHeight: `${slot}px`,
                                             overflow: 'hidden',
-                                            fontSize: 9,
+                                            fontSize: 10,
                                             textAlign: 'right',
                                             paddingRight: 5,
                                             color: '#aaa',
                                             flexShrink: 0,
-                                            letterSpacing: '0.02em',
                                         }}>
                                             {year % 5 === 0 ? year : ''}
                                         </div>
@@ -193,7 +193,7 @@ function Counter({ weeksLived, weeksTotal, weeksLeft }) {
     const yearsTotal = (weeksTotal / 52).toFixed(0)
 
     return (
-        <div style={{ marginBottom: 20, fontSize: 14, color: '#555', fontFamily: 'Helvetica, Arial, sans-serif', flexShrink: 0 }}>
+        <div style={{ marginBottom: 20, fontSize: 13, lineHeight: 1.3, color: '#555', flexShrink: 0 }}>
             {weeksLived >= 0 ? (
                 <>
                     {t.counterLived}{' '}
@@ -223,9 +223,10 @@ function AxisHeader({ slot }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 4 }}>
             <div style={{ width: LABEL_WIDTH, flexShrink: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', paddingRight: 5 }}>
                 <span style={{
-                    fontSize: 9,
+                    fontSize: 10,
+                    fontWeight: 500,
                     color: '#aaa',
-                    letterSpacing: '0.12em',
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     whiteSpace: 'nowrap',
                     userSelect: 'none',
@@ -238,10 +239,9 @@ function AxisHeader({ slot }) {
                     <span key={w} style={{
                         position: 'absolute',
                         left: (w - 1) * slot,
-                        fontSize: 9,
+                        fontSize: 10,
                         color: '#aaa',
                         lineHeight: 1,
-                        letterSpacing: '0.02em',
                     }}>
                         {w}
                     </span>
